@@ -20,24 +20,18 @@ drone = tello.Tello()
 drone.connect()
 print(drone.get_battery())
 #drone.takeoff()
-minspeed = 10
-start = False
-
-
-def print_pressed_keys(e):
-    print(e.name)
-    if e.name == 'esc':
-        drone.land()
-        print('LANDING')
-        return True
-    if e.name == 'enter':
-        drone.takeoff()
-
-        print('TAKEOFF')
-        return True
+minspeed = 5
 
 while ser.isOpen() == True:
-    s = keyboard.hook(print_pressed_keys)
+    if keyboard.is_pressed("esc"):
+        drone.land()
+        break
+    if keyboard.is_pressed("enter"):
+        drone.takeoff()
+        print("UP")
+    if keyboard.is_pressed("right shift"):
+        drone.land()
+        print("DOWN")
 
     while True:
         symbol = ser.read()
@@ -49,8 +43,6 @@ while ser.isOpen() == True:
                     datad.append(int(symbol))
                 except:
                     pass
-
-
             break
 
     datalist.append(datad)
@@ -74,6 +66,7 @@ while ser.isOpen() == True:
         #print(vp, vr)
     else:
         vr = 0
+
         vp = 0
     drone.send_rc_control(vr, vp, 0, 0)
     datad.clear()

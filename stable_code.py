@@ -1,70 +1,65 @@
 from djitellopy import tello
+import serial,time
 import keyboard
-import time
+
+#Serial_Config
+ser = serial.Serial()
+ser.baudrate = 115200
+ser.port = 'COM4'
+ser.timeout = None
+#print(ser)
+ser.open()
+
+# Lists and parametrs
+datalist = []
+datad = []
+k = 0
 
 #Drone setting
 drone = tello.Tello()
 drone.connect()
 print(drone.get_battery())
-vv=25
+drone.takeoff()
+minspeed = 5
 
-if __name__ == '__main__':
-    print('start')
-    drone.takeoff()
-    while True:
-        s = keyboard.hook()
 
-        if s.name == 'esc':  # esc
-            print('esc pressed')
-            drone.land()
-            break
-        elif s.name == ord('w'):
-            print('w')
-            t = time.time()
-            while True:
-                drone.send_rc_control(0,vv,0,0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
-        elif s.name == ord('s'):
-            print('s')
-            t = time.time()
-            while True:
-                drone.send_rc_control(0,-vv,0,0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
-        elif s.name == ord('a'):
-            print('a')
-            t = time.time()
-            while True:
-                drone.send_rc_control(-vv,0,0,0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
-        elif s.name == ord('d'):
-            print('d')
-            t = time.time()
-            while True:
-                drone.send_rc_control(vv, 0, 0, 0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
-        elif s.name == ord('h'):
-            print('h')
-            t = time.time()
-            while True:
-                drone.send_rc_control(0, 0, vv, 0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
-        elif s.name == ord('l'):
-            print('l')
-            t = time.time()
-            while True:
-                drone.send_rc_control(0, 0, -vv, 0)
-                time.sleep(0.05)
-                if time.time() - t > 0.5:
-                    break
+
+while ser.isOpen() == True:
+    s = keyboard.hook()
+    if s.name == 'esc':  # esc
+        print('END')
+        drone.land()
+        break
+
+    while len(datad) != 6:
+        symbol = ser.read()
+        try:
+            datad.append(int(symbol))
+        except:
+            pass
+
+    datalist.append(datad)
+    print(datalist[k])
+    if datalist[k][1] > 2 or datalist[k][3] > 2:
+        if datalist[k][0] == 0:
+            vnp=1
         else:
-            drone.send_rc_control(0, 0, 0, 0)
+            vnp=-1
+        if datalist[k][2] == 0:
+            vnr = 1
+        else:
+            vnr = -1
+
+        #vnp = datalist[k][0]
+        vsp = (minspeed*datalist[k][1])
+        #vnr = datalist[k][2]
+        vsr = (minspeed*datalist[k][3])
+        vp=vsp*vnp
+        vr=vsr*vnr
+        print(vp, vr)
+    else:
+        vr = 0
+        vp = 0
+    drone.send_rc_control(vr, vp, 0, 0)
+    datad.clear()
+    k=k+1

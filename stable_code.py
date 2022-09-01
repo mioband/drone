@@ -5,7 +5,7 @@ import keyboard
 #Serial_Config
 ser = serial.Serial()
 ser.baudrate = 115200
-ser.port = 'COM4'
+ser.port = 'COM9'
 ser.timeout = None
 #print(ser)
 ser.open()
@@ -19,24 +19,39 @@ k = 0
 drone = tello.Tello()
 drone.connect()
 print(drone.get_battery())
-drone.takeoff()
-minspeed = 5
+#drone.takeoff()
+minspeed = 10
+start = False
 
 
+def print_pressed_keys(e):
+    print(e.name)
+    if e.name == 'esc':
+        drone.land()
+        print('LANDING')
+        return True
+    if e.name == 'enter':
+        drone.takeoff()
+
+        print('TAKEOFF')
+        return True
 
 while ser.isOpen() == True:
-    s = keyboard.hook()
-    if s.name == 'esc':  # esc
-        print('END')
-        drone.land()
-        break
+    s = keyboard.hook(print_pressed_keys)
 
-    while len(datad) != 6:
+    while True:
         symbol = ser.read()
-        try:
-            datad.append(int(symbol))
-        except:
-            pass
+        if symbol == b'\n':
+            while len(datad) != 6:
+                symbol = ser.read()
+                # print (symbol)
+                try:
+                    datad.append(int(symbol))
+                except:
+                    pass
+
+
+            break
 
     datalist.append(datad)
     print(datalist[k])
@@ -56,10 +71,13 @@ while ser.isOpen() == True:
         vsr = (minspeed*datalist[k][3])
         vp=vsp*vnp
         vr=vsr*vnr
-        print(vp, vr)
+        #print(vp, vr)
     else:
         vr = 0
         vp = 0
     drone.send_rc_control(vr, vp, 0, 0)
     datad.clear()
     k=k+1
+
+
+

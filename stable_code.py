@@ -19,24 +19,31 @@ k = 0
 drone = tello.Tello()
 drone.connect()
 print(drone.get_battery())
-drone.takeoff()
+#drone.takeoff()
 minspeed = 5
 
-
-
 while ser.isOpen() == True:
-    s = keyboard.hook()
-    if s.name == 'esc':  # esc
-        print('END')
+    if keyboard.is_pressed("esc"):
         drone.land()
         break
+    if keyboard.is_pressed("enter"):
+        drone.takeoff()
+        print("UP")
+    if keyboard.is_pressed("right shift"):
+        drone.land()
+        print("DOWN")
 
-    while len(datad) != 6:
+    while True:
         symbol = ser.read()
-        try:
-            datad.append(int(symbol))
-        except:
-            pass
+        if symbol == b'\n':
+            while len(datad) != 6:
+                symbol = ser.read()
+                # print (symbol)
+                try:
+                    datad.append(int(symbol))
+                except:
+                    pass
+            break
 
     datalist.append(datad)
     print(datalist[k])
@@ -56,10 +63,14 @@ while ser.isOpen() == True:
         vsr = (minspeed*datalist[k][3])
         vp=vsp*vnp
         vr=vsr*vnr
-        print(vp, vr)
+        #print(vp, vr)
     else:
         vr = 0
+
         vp = 0
     drone.send_rc_control(vr, vp, 0, 0)
     datad.clear()
     k=k+1
+
+
+

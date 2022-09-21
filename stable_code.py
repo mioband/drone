@@ -5,7 +5,7 @@ import keyboard
 #Serial_Config
 ser = serial.Serial()
 ser.baudrate = 115200
-ser.port = 'COM9'
+ser.port = 'COM7'
 ser.timeout = None
 #print(ser)
 ser.open()

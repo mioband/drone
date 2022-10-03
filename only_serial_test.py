@@ -6,7 +6,7 @@ import time
 # Serial_Config
 ser = serial.Serial()
 ser.baudrate = 115200
-ser.port = 'COM11'
+ser.port = 'COM9'
 ser.timeout = None
 ser.open()
 
@@ -42,7 +42,8 @@ def getdata():
         d2 = static_data_yh[k]
         #print(len(static_data_yh))
         #print(id(static_data_yh[c_yh]))
-    print(d1, d2, sep="--", end="\n")
+    print(d1, d2, k, sep="--", end="\n")
+    #time.sleep(0.5)
 
 while ser.isOpen() == True:
     getdata()

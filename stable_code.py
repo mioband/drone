@@ -5,7 +5,7 @@ import keyboard
 #Serial_Config
 ser = serial.Serial()
 ser.baudrate = 115200
-ser.port = 'COM7'
+ser.port = 'COM3'
 ser.timeout = None
 #print(ser)
 ser.open()
@@ -13,6 +13,7 @@ ser.open()
 # Lists and parametrs
 datalist = []
 datad = []
+
 k = 0
 
 #Drone setting
@@ -20,6 +21,10 @@ drone = tello.Tello()
 drone.connect()
 print(drone.get_battery())
 #drone.takeoff()
+
+
+
+
 minspeed = 5
 
 while ser.isOpen() == True:

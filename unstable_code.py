@@ -9,6 +9,7 @@ ser.baudrate = 115200
 ser.port = 'COM9'
 ser.timeout = None
 ser.open()
+
 # Lists and parameters
 packet_data = []
 fly_ok = False

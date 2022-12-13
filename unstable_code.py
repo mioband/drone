@@ -3,28 +3,10 @@ from djitellopy import tello
 import serial
 import keyboard
 
+
 # Serial_Config
-ser = serial.Serial()
-ser.baudrate = 115200
-ser.port = 'COM9'
-ser.timeout = None
-ser.open()
-
-# Lists and parameters
-packet_data = []
-fly_ok = False
-
-# Drone setting
-drone = tello.Tello()
-drone.connect()
-print(drone.get_battery())
-minspeed = 11  # Minial speed (5-11)
-minspeed_rp = 11
-last_h = 0
-last_vr = 0
-last_vp = 0
-last_yaw = 0
-
+BAUDRATE = 115200
+PORT = 'COM3'
 
 def getdata():
     while True:
@@ -92,23 +74,53 @@ def controll(packet_data, last_vr, last_vp, last_h, last_yaw):
     drone.send_rc_control(vr, vp, h, yaw)
     return last_vr, last_vp, last_h, last_yaw
 
+if __name__ == '__main__':
+    ser = serial.Serial()
+    ser.baudrate = BAUDRATE
+    ser.port = PORT
+    ser.timeout = None
+    ser.open()
 
-while ser.isOpen() == True:
-    if keyboard.is_pressed("esc"):
-        drone.land()
-        break
-    if keyboard.is_pressed("enter"):
-        drone.takeoff()
-        fly_ok =True
-        print("UP")
-    if keyboard.is_pressed("right shift"):
-        drone.land()
-        fly_ok=False
-        print("DOWN")
+    # Lists and parameters
+    packet_data = []
+    fly_ok = False
 
-    packet_data = getdata()
-    if fly_ok:
-        last_vr, last_vp, last_h, last_yaw = controll(packet_data, last_vr, last_vp, last_h, last_yaw)
-    packet_data.clear()
+    # Drone setting
+    drone = tello.Tello()
+    drone.connect()
+    print(drone.get_battery())
+    minspeed = 11  # Minial speed (5-11)
+    minspeed_rp = 11
+    last_h = 0
+    last_vr = 0
+    last_vp = 0
+    last_yaw = 0
 
-drone.land()
+    # Main loop
+    while ser.isOpen() == True:
+        if keyboard.is_pressed("esc"):
+            print('esc pressed')
+
+            drone.land()
+            break
+        if keyboard.is_pressed("enter"):
+            print('enter pressed')
+            drone.takeoff()
+            fly_ok = True
+            print("UP")
+        if keyboard.is_pressed("right shift"):
+            print('shift pressed')
+            drone.land()
+            fly_ok = False
+
+            print("DOWN")
+
+        packet_data = getdata()
+
+        if fly_ok:
+            last_vr, last_vp, last_h, last_yaw = controll(packet_data, last_vr, last_vp, last_h, last_yaw)
+        packet_data.clear()
+
+
+
+    drone.land()
